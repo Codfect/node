@@ -9,9 +9,21 @@ app.use(express.json()); // -> Todas as rotas vão ter que passar por essa funç
 
 const projects = [];
 
+function logRequests(request, response, next) {
+  const { method, url } = request
+
+  const logLabel = `[${method.toUpperCase()}] ${url}`;
+
+  console.log(logLabel)
+
+  return next();
+} 
+
+app.use(logRequests);
+
 //Rotas ->
 //GET
-app.get('/projects', (request, response) => {
+app.get('/projects', logRequests, (request, response) => {
   const { nome } = request.query;
 
   const results = nome ? projects.filter(project => project.nome.includes(nome))
