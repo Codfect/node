@@ -1,3 +1,4 @@
+const { query } = require('express');
 const express = require('express');
 const { uuid } = require('uuidv4');
 
@@ -11,8 +12,12 @@ const projects = [];
 //Rotas ->
 //GET
 app.get('/projects', (request, response) => {
+  const { nome } = request.query;
 
-  return response.json(projects);
+  const results = nome ? projects.filter(project => project.nome.includes(nome))
+  : projects;
+
+  return response.json(results);
 });
 
 //POST
