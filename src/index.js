@@ -1,57 +1,69 @@
 const express = require('express');
+const { uuid } = require('uuidv4');
+
 const app = express();
 app.use(express.json()); // -> Todas as rotas vão ter que passar por essa função dentro de use
 
+
+
+const projects = [];
 
 //Rotas ->
 //GET
 app.get('/projects', (request, response) => {
 
-  const { nome, vaga } = request.query;
-
-  console.log(nome);
-  console.log(vaga);
-
-  return response.json([
-    'Projeto 1',
-    'Projeto 2',
-  ]);
+  return response.json(projects);
 });
 
 //POST
 app.post('/projects', (request, response) => {
 
-  const body = request.body;
+  const { nome, vaga, tecs } = request.body;
 
-  console.log(body);
+  const project = { id: uuid(), nome, vaga, tecs }
 
-  return response.json([
-    'Projeto 1',
-    'Projeto 2',
-    'Projeto 3',
-  ]);
+  projects.push(project);
+
+  return response.json(project);
 });
 
 //PUT
 app.put('/projects/:id', (request, response) => {
 
-  const params = request.params;
-
-  console.log(params)
+  const { id } = request.params;
+  const { nome, vaga, tecs } = request.body;
   
-  return response.json([
-    'Projeto 7',
-    'Projeto 2',
-    'Projeto 3',
-  ]);
+  const projectIndex = projects.findIndex(project => project.id == id);
+
+  if (projectIndex < 0) {
+    return response.status(400).json({error: 'not found'})
+  }
+
+  const project = {
+    id,
+    nome,
+    vaga,
+    tecs,
+  }
+
+  projects[projectIndex] = project
+
+  return response.json(project);
 });
 
 //DELETE
 app.delete('/projects/:id', (request, response) => {
-  return response.json([
-    'Projeto 7',
-    'Projeto 2',
-  ]);
+  const { id } = request.params;
+
+  const projectIndex = projects.findIndex(project => project.id == id);
+
+  if (projectIndex < 0) {
+    return response.status(400).json({error: 'not found'})
+  }
+
+  projects.splice(projectIndex, 1);
+
+  return response.status(204).send();
 });
 
 
