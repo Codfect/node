@@ -1,6 +1,6 @@
 const { query } = require('express');
 const express = require('express');
-const { uuid } = require('uuidv4');
+const { uuid, isUuid } = require('uuidv4');
 
 const app = express();
 app.use(express.json()); // -> Todas as rotas vão ter que passar por essa função dentro de use
@@ -19,7 +19,18 @@ function logRequests(request, response, next) {
   return next();
 } 
 
+function validateProjectId(request, response, next) {
+  const { id } = request.params;
+
+  if(!isUuid(id)) {
+    return response.status(400).json({ error: 'Invalid ID' });
+  }
+
+  return next();
+}
+
 app.use(logRequests);
+//app.use('/projects/:id', validateProjectId)
 
 //Rotas ->
 //GET
@@ -45,7 +56,7 @@ app.post('/projects', (request, response) => {
 });
 
 //PUT
-app.put('/projects/:id', (request, response) => {
+app.put('/projects/:id',  (request, response) => {
 
   const { id } = request.params;
   const { nome, vaga, tecs } = request.body;
@@ -69,7 +80,7 @@ app.put('/projects/:id', (request, response) => {
 });
 
 //DELETE
-app.delete('/projects/:id', (request, response) => {
+app.delete('/projects/:id', validateProjectId, (request, response) => {
   const { id } = request.params;
 
   const projectIndex = projects.findIndex(project => project.id == id);
